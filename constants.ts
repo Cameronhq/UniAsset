@@ -1,5 +1,28 @@
 import { Asset, MarketEvent } from "./types";
 
+export const COMMON_SYMBOLS = [
+  { symbol: 'AAPL', name: 'Apple Inc.', type: 'Stock' },
+  { symbol: 'NVDA', name: 'NVIDIA Corp.', type: 'Stock' },
+  { symbol: 'MSFT', name: 'Microsoft Corp.', type: 'Stock' },
+  { symbol: 'AMZN', name: 'Amazon.com Inc.', type: 'Stock' },
+  { symbol: 'GOOGL', name: 'Alphabet Inc.', type: 'Stock' },
+  { symbol: 'TSLA', name: 'Tesla Inc.', type: 'Stock' },
+  { symbol: 'META', name: 'Meta Platforms', type: 'Stock' },
+  { symbol: 'AMD', name: 'Advanced Micro Devices', type: 'Stock' },
+  { symbol: 'COIN', name: 'Coinbase Global', type: 'Stock' },
+  { symbol: 'PLTR', name: 'Palantir Technologies', type: 'Stock' },
+  { symbol: 'BTC', name: 'Bitcoin', type: 'Crypto' },
+  { symbol: 'ETH', name: 'Ethereum', type: 'Crypto' },
+  { symbol: 'SOL', name: 'Solana', type: 'Crypto' },
+  { symbol: 'DOGE', name: 'Dogecoin', type: 'Crypto' },
+  { symbol: 'SPY', name: 'SPDR S&P 500 ETF', type: 'ETF' },
+  { symbol: 'QQQ', name: 'Invesco QQQ', type: 'ETF' },
+  { symbol: 'VOO', name: 'Vanguard S&P 500', type: 'ETF' },
+  { symbol: 'TLT', name: 'iShares 20+ Year Treasury', type: 'ETF' },
+  { symbol: 'GLD', name: 'SPDR Gold Shares', type: 'Commodities' },
+  { symbol: 'USDC', name: 'USD Coin', type: 'Cash / Yield' },
+];
+
 export const INITIAL_ASSETS: Asset[] = [
   {
     id: '1',
@@ -11,7 +34,8 @@ export const INITIAL_ASSETS: Asset[] = [
     totalValue: 42500,
     currency: 'USD',
     exposureTags: ['AI Hardware', 'Semiconductors', 'Growth'],
-    change24h: 3.2
+    change24h: 3.2,
+    createdAt: '2024-01-15T09:00:00Z'
   },
   {
     id: '2',
@@ -23,7 +47,8 @@ export const INITIAL_ASSETS: Asset[] = [
     totalValue: 14400,
     currency: 'USD',
     exposureTags: ['Crypto Layer 1', 'Risk-on', 'DeFi'],
-    change24h: -1.5
+    change24h: -1.5,
+    createdAt: '2024-02-20T14:30:00Z'
   },
   {
     id: '3',
@@ -35,7 +60,8 @@ export const INITIAL_ASSETS: Asset[] = [
     totalValue: 18800,
     currency: 'USD',
     exposureTags: ['US Treasury', 'Interest Rate Sensitive', 'Defensive'],
-    change24h: 0.4
+    change24h: 0.4,
+    createdAt: '2024-03-10T11:15:00Z'
   }
 ];
 

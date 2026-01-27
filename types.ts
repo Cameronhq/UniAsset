@@ -1,16 +1,20 @@
-export type ProductType = 'Stock' | 'ETF' | 'Crypto' | 'Derivatives' | 'Commodities' | 'Cash' | 'Other';
+
+export type ProductType = 'Stock' | 'ETF' | 'Crypto' | 'Derivatives' | 'Commodities' | 'Cash / Yield' | 'Other';
 
 export interface Asset {
   id: string;
-  platform: string;
+  platform: string; // e.g., Robinhood, Coinbase
   productType: ProductType;
-  symbol: string;
+  symbol: string; // e.g., AAPL, BTC
   quantity: number;
   unitPrice: number;
   totalValue: number;
   currency: string;
+  expectedYieldApy?: number; // %
+  notes?: string;
   exposureTags: string[];
   change24h?: number; // percentage
+  createdAt: string; // ISO timestamp
 }
 
 export type EventType = 'past' | 'upcoming';

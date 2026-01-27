@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
@@ -41,15 +42,15 @@ const App: React.FC = () => {
   const renderContent = () => {
     switch (currentView) {
       case View.DASHBOARD:
-        return <Dashboard assets={assets} events={events} />;
+        return <Dashboard assets={assets} events={events} onViewChange={setCurrentView} />;
       case View.PORTFOLIO:
         return <Portfolio assets={assets} setAssets={setAssets} />;
       case View.INTELLIGENCE:
-        return <Intelligence events={events} />;
+        return <Intelligence events={events} portfolio={assets} />;
       case View.ADVISORY:
         return <Advisory portfolio={assets} events={events} />;
       default:
-        return <Dashboard assets={assets} events={events} />;
+        return <Dashboard assets={assets} events={events} onViewChange={setCurrentView} />;
     }
   };
 

@@ -1,11 +1,13 @@
+
 import React from 'react';
-import { Asset, MarketEvent } from '../types';
+import { Asset, MarketEvent, View } from '../types';
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
 import { ArrowUpRight, AlertTriangle, ShieldCheck, Zap } from 'lucide-react';
 
 interface DashboardProps {
   assets: Asset[];
   events: MarketEvent[];
+  onViewChange: (view: View) => void;
 }
 
 // Mock historical data generator
@@ -25,7 +27,7 @@ const generateHistory = (currentValue: number) => {
   return data;
 };
 
-const Dashboard: React.FC<DashboardProps> = ({ assets, events }) => {
+const Dashboard: React.FC<DashboardProps> = ({ assets, events, onViewChange }) => {
   const totalValue = assets.reduce((acc, curr) => acc + curr.totalValue, 0);
   const historyData = React.useMemo(() => generateHistory(totalValue), [totalValue]);
   
@@ -97,7 +99,11 @@ const Dashboard: React.FC<DashboardProps> = ({ assets, events }) => {
               <p className="text-sm font-semibold text-zinc-300">Priority Events</p>
               {upcomingRisks.length > 0 ? (
                 upcomingRisks.slice(0, 3).map(event => (
-                  <div key={event.id} className="p-3 bg-zinc-900 rounded-xl border border-zinc-800 hover:border-zinc-600 transition-colors cursor-pointer">
+                  <div 
+                    key={event.id} 
+                    onClick={() => onViewChange(View.INTELLIGENCE)}
+                    className="p-3 bg-zinc-900 rounded-xl border border-zinc-800 hover:border-zinc-600 transition-colors cursor-pointer"
+                  >
                     <div className="flex justify-between items-start mb-1">
                       <span className="text-xs text-orange-500 font-bold uppercase tracking-wider">Upcoming</span>
                       <span className="text-zinc-500 text-xs">{event.date}</span>
@@ -117,7 +123,10 @@ const Dashboard: React.FC<DashboardProps> = ({ assets, events }) => {
               )}
             </div>
             
-             <button className="w-full py-3 bg-zinc-800 hover:bg-zinc-700 rounded-xl text-sm font-bold text-white transition-colors">
+             <button 
+               onClick={() => onViewChange(View.INTELLIGENCE)}
+               className="w-full py-3 bg-zinc-800 hover:bg-zinc-700 rounded-xl text-sm font-bold text-white transition-colors"
+             >
               View All Events
             </button>
           </div>

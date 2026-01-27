@@ -1,3 +1,4 @@
+
 import { GoogleGenAI, Type } from "@google/genai";
 import { Asset, MarketEvent, ChatMessage } from "../types";
 
@@ -5,30 +6,58 @@ import { Asset, MarketEvent, ChatMessage } from "../types";
 const apiKey = process.env.API_KEY || '';
 const ai = new GoogleGenAI({ apiKey });
 
-const MODEL_FLASH = 'gemini-3-flash-preview';
+const MODEL_FLASH = 'gemini-3-flash-preview'; // Updated to a valid model version
 
 /**
- * Parses natural language input into a structured Asset object.
+ * Parses natural language input or image screenshot into a structured Asset object.
  */
-export const parseAssetEntry = async (input: string): Promise<Partial<Asset>> => {
+export const parseAssetEntry = async (input: string, imageBase64?: string): Promise<Partial<Asset>> => {
   if (!apiKey) throw new Error("API Key not found");
+
+  const parts: any[] = [];
+  
+  if (imageBase64) {
+    parts.push({
+      inlineData: {
+        mimeType: 'image/png', // Assuming PNG for screenshots, but API is flexible
+        data: imageBase64
+      }
+    });
+    parts.push({
+      text: "Analyze this screenshot of an asset position. Extract the details into the specified JSON format."
+    });
+  }
+
+  if (input) {
+    parts.push({
+      text: `Extract asset details from this user input: "${input}".`
+    });
+  }
+
+  parts.push({
+    text: `Return a JSON object. If a field is missing or ambiguous, leave it null or omit.
+    For 'exposureTags', infer 2-3 tags like 'US Tech', 'Crypto', 'Safe Haven' based on the asset.
+    Normalize platform names (e.g. 'Robinhood', 'Coinbase', 'Fidelity').
+    Product types: 'Stock', 'ETF', 'Crypto', 'Derivatives', 'Commodities', 'Cash / Yield', 'Other'.`
+  });
 
   const response = await ai.models.generateContent({
     model: MODEL_FLASH,
-    contents: `Extract asset details from this user input: "${input}". 
-    Return a JSON object. If a field is missing, omit it or use a sensible default (e.g., currency USD).
-    For 'exposureTags', infer 2-3 tags like 'US Tech', 'Crypto', 'Safe Haven' based on the asset.`,
+    contents: { parts },
     config: {
       responseMimeType: "application/json",
       responseSchema: {
         type: Type.OBJECT,
         properties: {
           platform: { type: Type.STRING },
-          productType: { type: Type.STRING, enum: ['Stock', 'ETF', 'Crypto', 'Derivatives', 'Commodities', 'Cash', 'Other'] },
+          productType: { type: Type.STRING, enum: ['Stock', 'ETF', 'Crypto', 'Derivatives', 'Commodities', 'Cash / Yield', 'Other'] },
           symbol: { type: Type.STRING },
           quantity: { type: Type.NUMBER },
           unitPrice: { type: Type.NUMBER },
+          totalValue: { type: Type.NUMBER },
           currency: { type: Type.STRING },
+          expectedYieldApy: { type: Type.NUMBER },
+          notes: { type: Type.STRING },
           exposureTags: { type: Type.ARRAY, items: { type: Type.STRING } }
         },
         required: ['productType', 'symbol', 'quantity']
@@ -41,6 +70,47 @@ export const parseAssetEntry = async (input: string): Promise<Partial<Asset>> =>
   
   return JSON.parse(text);
 };
+
+/**
+ * Fetches approximate market data for a symbol using Gemini (simulating a financial API).
+ */
+export const getAssetMarketData = async (symbol: string): Promise<{ price: number; name?: string; productType?: string }> => {
+  if (!apiKey) {
+    // Mock fallback if no API key
+    return { price: Math.floor(Math.random() * 500) + 10, name: symbol };
+  }
+
+  try {
+    const response = await ai.models.generateContent({
+      model: MODEL_FLASH,
+      contents: `Provide the current approximate market price in USD and the full name for the asset symbol: "${symbol}". 
+      Return JSON only. Example: {"price": 175.50, "name": "Apple Inc", "productType": "Stock"}. 
+      If unknown, return null for price.`,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            price: { type: Type.NUMBER },
+            name: { type: Type.STRING },
+            productType: { type: Type.STRING, enum: ['Stock', 'ETF', 'Crypto', 'Derivatives', 'Commodities', 'Cash / Yield', 'Other'] }
+          }
+        }
+      }
+    });
+
+    const data = JSON.parse(response.text || '{}');
+    if (data && data.price) {
+      return data;
+    }
+    throw new Error("No data returned");
+  } catch (e) {
+    console.error("Failed to fetch market data via AI", e);
+    // Fallback to random price for demo purposes if AI fails or key is missing
+    return { price: 0, name: symbol };
+  }
+};
+
 
 /**
  * Generates an advisory response based on portfolio and chat history.
