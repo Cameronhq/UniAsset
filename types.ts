@@ -1,6 +1,18 @@
 
 export type ProductType = 'Stock' | 'ETF' | 'Crypto' | 'Derivatives' | 'Commodities' | 'Cash / Yield' | 'Other';
 
+export interface AssetChange {
+  field: string;
+  oldValue: string | number | undefined;
+  newValue: string | number | undefined;
+}
+
+export interface AssetHistoryRecord {
+  id: string;
+  timestamp: string; // ISO string
+  changes: AssetChange[];
+}
+
 export interface Asset {
   id: string;
   platform: string; // e.g., Robinhood, Coinbase
@@ -15,6 +27,17 @@ export interface Asset {
   exposureTags: string[];
   change24h?: number; // percentage
   createdAt: string; // ISO timestamp
+  walletAddress?: string; // Optional: Linked wallet address
+  isAutoSynced?: boolean; // Optional: If true, prevents manual editing of qty
+  updateHistory?: AssetHistoryRecord[]; // Log of all manual updates
+}
+
+export interface Wallet {
+  id: string;
+  address: string;
+  chain: 'Ethereum' | 'Solana' | 'Bitcoin' | 'Polygon';
+  label?: string;
+  lastSynced: number;
 }
 
 export type EventType = 'past' | 'upcoming';
